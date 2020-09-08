@@ -2,9 +2,10 @@
 Parquet metadata explorer, alternative to parquet-cli/parquet-tools.
 
 Features:
-- Allows collecting statistics on all of the files in a Parquet table.
-- Actually, also **works on any file based table** with level `file`, e.g. JSON or CSV.
+- Collects metadata on all of the files in a Parquet table as DataFrame.
+- Also works on any file based table with level `file`, e.g. JSON or CSV.
 - Implemented as Spark datasource V1, so the code is compatible with earlier versions of Spark.
+- Works with OSS and Databricks Runtime.
 
 > Note the repository is built for Spark 3.0 by default,
 > see Build section to compile for older Spark versions.
