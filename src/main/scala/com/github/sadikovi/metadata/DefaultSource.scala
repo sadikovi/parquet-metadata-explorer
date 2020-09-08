@@ -31,13 +31,13 @@ class DefaultSource
       val fs = path.getFileSystem(spark.sessionState.newHadoopConf)
       fs.makeQualified(path)
     }
-    log.info(s"Root path $rootPath")
+    log.info(s"Root path: $rootPath")
 
     val maxPartitions = parameters.get(MAX_PARTITIONS_OPT) match {
       case Some(v) => v.toInt
       case None => MAX_PARTITIONS_DEFAULT
     }
-    log.info(s"Max partitions $maxPartitions")
+    log.info(s"Max partitions: $maxPartitions")
 
     // // Select file index based on the underlying data source
     val fileIndex = inferFileIndex(spark, rootPath, parameters)

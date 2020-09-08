@@ -1,9 +1,13 @@
 package com.github.sadikovi.metadata
 
+import java.sql.{Date, Timestamp}
+
 import org.apache.hadoop.fs.Path
 
 import org.apache.spark.sql._
+import org.apache.spark.sql.catalyst.InternalRow
 import org.apache.spark.sql.functions._
+import org.apache.spark.sql.types._
 
 class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
   override def beforeAll {
@@ -74,6 +78,41 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
       }
       assert(err.getMessage.contains("Source 'file' does not support 'rowgroup' level"))
     }
+  }
+
+  test("MetadataFileFormat, getPartitionMap") {
+    // Spark SQL ensures that the schema always matches the partition values
+    val schema = StructType(
+      StructField("boolean", BooleanType) ::
+      StructField("int", IntegerType) ::
+      StructField("long", LongType) ::
+      StructField("double", DoubleType) ::
+      StructField("string", StringType) ::
+      StructField("date", DateType) ::
+      StructField("timestamp", TimestampType) ::
+      Nil)
+
+    val parts = InternalRow(
+      true,
+      1,
+      2L,
+      3.3,
+      "abc",
+      Date.valueOf("2020-01-01"),
+      Timestamp.valueOf("2020-02-02 01:02:03")
+    )
+
+    val res = MetadataFileFormat.getPartitionMap(schema, parts)
+    val exp = Map(
+      "boolean" -> "true",
+      "int" -> "1",
+      "long" -> "2",
+      "double" -> "3.3",
+      "string" -> "abc",
+      "date" -> "2020-01-01",
+      "timestamp" -> "2020-02-02 01:02:03.0")
+
+    assert(res === exp)
   }
 
   test("test file level for JSON") {
