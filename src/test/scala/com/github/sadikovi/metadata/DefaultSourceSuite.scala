@@ -46,7 +46,7 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
     assert(status.getModificationTime === 2)
   }
 
-  test("invalid source") {
+  test("DefaultSource, invalid source") {
     withTempDir { dir =>
       val err = intercept[IllegalArgumentException] {
         val df = readDF.option("source", "invalid").load(dir.toString)
@@ -55,7 +55,7 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
     }
   }
 
-  test("invalid level") {
+  test("DefaultSource, invalid level") {
     withTempDir { dir =>
       val err = intercept[IllegalArgumentException] {
         val df = readDF.option("level", "invalid").load(dir.toString)
@@ -64,7 +64,7 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
     }
   }
 
-  test("incompatible source and level") {
+  test("DefaultSource, incompatible source and level") {
     withTempDir { dir =>
       val err = intercept[IllegalArgumentException] {
         val df = readDF

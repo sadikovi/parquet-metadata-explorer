@@ -91,6 +91,12 @@ object DefaultSource {
   val MAX_PARTITIONS_OPT = "maxparts"
   val MAX_PARTITIONS_DEFAULT = 200
 
+  // Source of the input table
+  val SOURCE_OPT = "source"
+  val SOURCE_FILE = "file"
+  val SOURCE_PARQUET = "parquet"
+  val ALL_SOURCES = Seq(SOURCE_FILE, SOURCE_PARQUET)
+
   // Defines level of metadata to display.
   // Note that not all sources support all levels
   val LEVEL_OPT = "level"
@@ -100,33 +106,22 @@ object DefaultSource {
   val LEVEL_PAGE = "page"
   val ALL_LEVELS = Seq(LEVEL_FILE, LEVEL_ROW_GROUP, LEVEL_COLUMN, LEVEL_PAGE)
 
-  // Source of the input table
-  val SOURCE_OPT = "source"
-  val SOURCE_FILE = "file"
-  val SOURCE_PARQUET = "parquet"
-  val ALL_SOURCES = Seq(SOURCE_FILE, SOURCE_PARQUET)
-
   /** Infers metadata level */
   def inferMetadataLevel(source: String, level: String): MetadataLevel = {
     def assertUnsupported(source: String, level: String): MetadataLevel = {
       throw new IllegalArgumentException(s"Source '$source' does not support '$level' level")
     }
-    level match {
-      case LEVEL_FILE => source match {
-        case SOURCE_FILE => FileLevel
-        case SOURCE_PARQUET => ParquetFileLevel
+
+    source match {
+      case SOURCE_FILE => level match {
+        case LEVEL_FILE => FileLevel
         case _ => assertUnsupported(source, level)
       }
-      case LEVEL_ROW_GROUP => source match {
-        case SOURCE_PARQUET => ParquetRowGroupLevel
-        case _ => assertUnsupported(source, level)
-      }
-      case LEVEL_COLUMN => source match {
-        case SOURCE_PARQUET => ParquetColumnLevel
-        case _ => assertUnsupported(source, level)
-      }
-      case LEVEL_PAGE => source match {
-        case SOURCE_PARQUET => ParquetPageLevel
+      case SOURCE_PARQUET => level match {
+        case LEVEL_FILE => ParquetFileLevel
+        case LEVEL_ROW_GROUP => ParquetRowGroupLevel
+        case LEVEL_COLUMN => ParquetColumnLevel
+        case LEVEL_PAGE => ParquetPageLevel
         case _ => assertUnsupported(source, level)
       }
       case _ => assertUnsupported(source, level)
