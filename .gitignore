@@ -1,2 +1,8 @@
 *.class
 *.log
+target/
+.history
+
+metastore_db/
+spark-warehouse/
+derby.log
