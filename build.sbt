@@ -4,7 +4,7 @@ organization := "com.github.sadikovi"
 
 scalaVersion := "2.12.12"
 
-spName := "databricks/delta-metadata"
+spName := "sadikovi/parquet-metadata-explorer"
 
 val defaultSparkVersion = "3.0.0"
 
