@@ -18,6 +18,7 @@ Supported datasource options:
 | `source` | Specifies the source of the table: `parquet`, or `file` (any other format) | Inferred from the path
 | `level` | Shows level of metadata for the `source`. Values are `file` (file metadata), `rowgroup` (Parquet row group metadata), `column` (Parquet column chunk metadata), `page` (Parquet page metadata). Note that not all of the sources support all levels | `file`
 | `maxparts` | Defines the number of partitions to use when reading data. For example, if you have hundreds of thousands of files, you can use this option to read all of the data in 2000 partitions instead | `min(200, files.length)`
+| `buffersize` | Sets buffer size in bytes for reading Parquet page level data. This reduces the amount of remote calls to DBFS, S3, WASB, ABFS, etc. It is recommended to use a large value, e.g. 64 MB or 128 MB | `128 MB`, typical row group size
 
 DataFrame columns for each level are in
 [MetadataLevel.scala](./src/main/scala/com/github/sadikovi/metadata/MetadataLevel.scala).

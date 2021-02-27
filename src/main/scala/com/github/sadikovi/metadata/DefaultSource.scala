@@ -39,6 +39,12 @@ class DefaultSource
     }
     log.info(s"Max partitions: $maxPartitions")
 
+    val bufferSize = parameters.get(BUFFER_SIZE_OPT) match {
+      case Some(v) => v.toInt
+      case None => BUFFER_SIZE_DEFAULT
+    }
+    log.info(s"Buffer size: $bufferSize")
+
     // // Select file index based on the underlying data source
     val fileIndex = inferFileIndex(spark, rootPath, parameters)
 
@@ -79,7 +85,7 @@ class DefaultSource
     log.info(s"Metadata level $metadataLevel")
 
     // Select file format
-    inferFileFormat(spark, fileIndex, metadataLevel, maxPartitions)
+    inferFileFormat(spark, fileIndex, metadataLevel, maxPartitions, bufferSize)
   }
 }
 
@@ -90,6 +96,10 @@ object DefaultSource {
   // Option for max partitions for a resulting DataFrame
   val MAX_PARTITIONS_OPT = "maxparts"
   val MAX_PARTITIONS_DEFAULT = 200
+
+  // Option for buffer size that is used with Parquet (default value is a typical row group size)
+  val BUFFER_SIZE_OPT = "buffersize"
+  val BUFFER_SIZE_DEFAULT = 128 * 1024 * 1024
 
   // Source of the input table
   val SOURCE_OPT = "source"
@@ -149,12 +159,13 @@ object DefaultSource {
       spark: SparkSession,
       fileIndex: FileIndex,
       level: MetadataLevel,
-      maxPartitions: Int): BaseRelation = {
+      maxPartitions: Int,
+      bufferSize: Int): BaseRelation = {
     level match {
       case FileLevel =>
         new FileMetadataFormat(spark, fileIndex, level, maxPartitions)
       case ParquetFileLevel | ParquetRowGroupLevel | ParquetColumnLevel | ParquetPageLevel =>
-        new ParquetMetadataFileFormat(spark, fileIndex, level, maxPartitions)
+        new ParquetMetadataFileFormat(spark, fileIndex, level, maxPartitions, bufferSize)
       case other =>
         throw new IllegalArgumentException(s"No file format for level $other")
     }

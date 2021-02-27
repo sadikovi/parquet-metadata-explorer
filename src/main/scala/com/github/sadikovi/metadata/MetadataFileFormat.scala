@@ -170,7 +170,8 @@ class ParquetMetadataFileFormat(
     spark: SparkSession,
     fileIndex: FileIndex,
     level: MetadataLevel,
-    maxPartitions: Int)
+    maxPartitions: Int,
+    bufferSize: Int)
   extends MetadataFileFormat(spark, fileIndex, level, maxPartitions) {
 
   require(
@@ -179,6 +180,8 @@ class ParquetMetadataFileFormat(
     level == ParquetColumnLevel ||
     level == ParquetPageLevel,
     s"Unsupported $level for $this")
+
+  require(bufferSize > 0, s"Unsupported buffer size value $bufferSize")
 
   override def buildScan(rdd: RDD[FileInfo], partitionSchema: StructType): RDD[Row] = {
     val broadcastedHadoopConf =
@@ -293,7 +296,7 @@ class ParquetMetadataFileFormat(
             var col_idx = 0
             var col_size = 0L
             var num_pages = 0
-            val in = fs.open(path)
+            val in = new RemoteInputStream(fs.open(path), bufferSize)
 
             override def hasNext: Boolean = col_idx < cols.length && col_size < cols(col_idx)._4
 
