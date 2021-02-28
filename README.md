@@ -18,8 +18,11 @@ View the default file level metadata, works on Parquet, JSON, and CSV:
 spark.read.format("metadata").load("/path/to/table_or_file").show()
 ```
 
-To show column and page information for Parquet, use this:
+To view row group, column, and page information for a Parquet table or files, use these commands:
 ```scala
+// View Parquet row group metadata
+spark.read.format("metadata").option("level", "rowgroup").load("/path/to/parquet").show()
+
 // View Parquet column chunk metadata
 spark.read.format("metadata").option("level", "column").load("/path/to/parquet").show()
 
