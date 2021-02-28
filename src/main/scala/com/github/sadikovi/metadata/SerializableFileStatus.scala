@@ -11,30 +11,32 @@ class SerializableFileStatus(@transient val status: Any) {
 
   def getPath(): Path = status match {
     case oss: FileStatus => oss.getPath()
-    case dbr if isStatus(dbr) => invoke[Path](dbr, "getPath")
+    case dbr => invoke[Path](dbr, "getPath")
   }
 
   def getLen(): Long = status match {
     case oss: FileStatus => oss.getLen()
-    case dbr if isStatus(dbr) => invoke[Long](dbr, "getLen")
+    case dbr => invoke[Long](dbr, "getLen")
   }
 
   def getModificationTime(): Long = status match {
     case oss: FileStatus => oss.getModificationTime()
-    case dbr if isStatus(dbr) => invoke[Long](dbr, "getModificationTime")
+    case dbr => invoke[Long](dbr, "getModificationTime")
   }
 }
 
 object SerializableFileStatus {
-  /** Returns true, if object is a FileSTatus or SerializableFileStatus */
-  def isStatus(obj: Any): Boolean = {
-    obj.getClass.getName.contains("FileStatus")
-  }
-
   /** Calls method with no arguments on the object */
-  def invoke[T](obj: Any, method: String): T = {
-    val m = obj.getClass.getDeclaredMethod(method)
-    m.setAccessible(true)
-    m.invoke(obj).asInstanceOf[T]
+  def invoke[T](obj: Any, methodName: String): T = {
+    val clazz = obj.getClass
+    try {
+      val method = clazz.getDeclaredMethod(methodName)
+      method.setAccessible(true)
+      method.invoke(obj).asInstanceOf[T]
+    } catch {
+      case err: Exception =>
+        throw new RuntimeException(
+          s"Failed to invoke method '${methodName}()' in ${clazz}, reason: $err", err)
+    }
   }
 }

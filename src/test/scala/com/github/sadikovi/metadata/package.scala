@@ -151,8 +151,10 @@ trait TestBase {
       (v1, v2) match {
         case (a1: Seq[_], a2: Seq[_]) =>
           assert(a1.length == a2.length, s"Array length mismatch ${a1.length} != ${a2.length}")
+          val a1sorted = a1.sortBy(_.toString)
+          val a2sorted = a2.sortBy(_.toString)
           for (i <- 0 until a1.length) {
-            checkValue(a1(i), a2(i))
+            checkValue(a1sorted(i), a2sorted(i))
           }
         case (m1: Map[_, _], m2: Map[_, _]) =>
           assert(m1.size == m2.size, s"Map size mismatch ${m1.size} != ${m2.size}")
