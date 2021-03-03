@@ -149,8 +149,17 @@ class ColumnMetadata(val column: ColumnChunk, val id: Int, val rowGroupId: Int) 
     if (column.isSetMeta_data()) Some(column.getMeta_data()) else None
   }
 
-  /** Returns an offset within the file for this column */
-  val fileOffset: Long = column.getFile_offset() // required Thrift field
+  /**
+   * Returns an offset within the file for this column.
+   *
+   * Don't rely on Thrift field for column offset, it can be set to data page offset
+   * when dictionary page exists, and sometimes can even be set incorrectly, e.g.
+   * "parquet-datasets/datasets1/alltypes_plain.snappy.parquet".
+   */
+  def fileOffset: Long =
+    dictionaryPageOffset
+      .orElse(dataPageOffset)
+      .getOrElse(column.getFile_offset()) // required Thrift field, use if no other offsets
 
   /** Returns the type for this column */
   val columnType: Option[String] = metadata.map(_.getType.toString) // required Thrift field

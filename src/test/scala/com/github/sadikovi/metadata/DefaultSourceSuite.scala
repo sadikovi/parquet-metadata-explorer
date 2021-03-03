@@ -274,4 +274,17 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
       assert(df.count === 1)
     }
   }
+
+  test("set column offset correctly") {
+    // File alltypes_plain.snappy.parquet does not seem to set the correct column offset in the
+    // metadata correctly, e.g. 55 instead of 4, resulting in Thrift errors when reading pages.
+    //
+    // This test verifies that no exception is thrown when reading metadata.
+    val path = getClass.getResource("/alltypes_plain.snappy.parquet").toString
+
+    readDF.option("level", "file").load(path).foreach(_ => ())
+    readDF.option("level", "rowgroup").load(path).foreach(_ => ())
+    readDF.option("level", "column").load(path).foreach(_ => ())
+    readDF.option("level", "page").load(path).foreach(_ => ())
+  }
 }
