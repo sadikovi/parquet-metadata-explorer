@@ -136,11 +136,11 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
         assert(schema.startsWith("parquet-mr"))
       }
 
-      assert(df.select("key_value_metadata").as[Seq[(String, String)]].collect
-        .flatten.map(_._1).toSet ===
+      assert(df.select("key_value_metadata").as[Map[String, String]]
+        .collect.flatMap(_.keys).toSet ===
           Set("org.apache.spark.version", "org.apache.spark.sql.parquet.row.metadata"))
 
-      df.select("path", "name").as[(String, String)].collect.foreach { case (path, name) =>
+      df.select("filepath", "filename").as[(String, String)].collect.foreach { case (path, name) =>
         assert(name.length > 0)
         assert(path.endsWith(name))
       }
@@ -158,16 +158,16 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
       assert(df.schema === ParquetRowGroupLevel.schema)
 
       checkAnswer(
-        df.drop("path"),
+        df.drop("filepath"),
         Seq(
-          Row(0, 1075L, 2064L, 250L, 1),
-          Row(0, 1078L, 2064L, 250L, 1),
-          Row(0, 1081L, 2064L, 250L, 1),
-          Row(0, 1079L, 2064L, 250L, 1)
+          Row(0, 4L, 1075L, 2064L, 250L, 1),
+          Row(0, 4L, 1078L, 2064L, 250L, 1),
+          Row(0, 4L, 1081L, 2064L, 250L, 1),
+          Row(0, 4L, 1079L, 2064L, 250L, 1)
         )
       )
 
-      df.select("path").as[String].collect.foreach { path =>
+      df.select("filepath").as[String].collect.foreach { path =>
         assert(path.length > 0)
       }
     }
@@ -185,21 +185,21 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
 
       // scalastyle:off
       checkAnswer(
-        df.drop("path"),
+        df.drop("filepath"),
         Seq(
-          Row(0, 0, 4L, "INT64", Seq("BIT_PACKED", "PLAIN"), "id", "SNAPPY", 250L, 2064L, 1075L, 4L, null, null, null, null, null, null),
-          Row(0, 0, 4L, "INT64", Seq("BIT_PACKED", "PLAIN"), "id", "SNAPPY", 250L, 2064L, 1078L, 4L, null, null, null, null, null, null),
-          Row(0, 0, 4L, "INT64", Seq("BIT_PACKED", "PLAIN"), "id", "SNAPPY", 250L, 2064L, 1081L, 4L, null, null, null, null, null, null),
-          Row(0, 0, 4L, "INT64", Seq("BIT_PACKED", "PLAIN"), "id", "SNAPPY", 250L, 2064L, 1079L, 4L, null, null, null, null, null, null),
-          Row(0, 1, 1079L, "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "col2", "SNAPPY", 250L, 66L, 70L, 1079L, null, null, null, null, null, null),
-          Row(0, 1, 1082L, "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "col2", "SNAPPY", 250L, 66L, 70L, 1082L, null, null, null, null, null, null),
-          Row(0, 1, 1083L, "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "col2", "SNAPPY", 250L, 66L, 70L, 1083L, null, null, null, null, null, null),
-          Row(0, 1, 1085L, "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "col2", "SNAPPY", 250L, 66L, 70L, 1085L, null, null, null, null, null, null),
+          Row(0, 0, 4L, 1075L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L, 4L, null, null, null, null, null, null),
+          Row(0, 0, 4L, 1078L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L, 4L, null, null, null, null, null, null),
+          Row(0, 0, 4L, 1081L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L, 4L, null, null, null, null, null, null),
+          Row(0, 0, 4L, 1079L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L, 4L, null, null, null, null, null, null),
+          Row(0, 1, 1079L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L, 1079L, null, null, null, null, null, null),
+          Row(0, 1, 1082L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L, 1082L, null, null, null, null, null, null),
+          Row(0, 1, 1083L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L, 1083L, null, null, null, null, null, null),
+          Row(0, 1, 1085L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L, 1085L, null, null, null, null, null, null),
         )
       )
       // scalastyle:on
 
-      df.select("path").as[String].collect.foreach { path =>
+      df.select("filepath").as[String].collect.foreach { path =>
         assert(path.length > 0)
       }
     }
@@ -217,25 +217,25 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
 
       // scalastyle:off
       checkAnswer(
-        df.drop("path"),
+        df.drop("filepath"),
         Seq(
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64L, 2000L, 1011L, null, 250L, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8L, 8L)),
-          Row(0, 1, 0, "DICTIONARY_PAGE", 1079L, 13L, 4L, 6L, null, 1L, "PLAIN_DICTIONARY", null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1098L, 46L, 3L, 5L, null, 250L, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4L, 4L)),
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64L, 2000L, 1014L, null, 250L, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8L, 8L)),
-          Row(0, 1, 0, "DICTIONARY_PAGE", 1082L, 13L, 4L, 6L, null, 1L, "PLAIN_DICTIONARY", null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1101L, 46L, 3L, 5L, null, 250L, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4L, 4L)),
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64L, 2000L, 1017L, null, 250L, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8L, 8L)),
-          Row(0, 1, 0, "DICTIONARY_PAGE", 1085L, 13L, 4L, 6L, null, 1L, "PLAIN_DICTIONARY", null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1104L, 46L, 3L, 5L, null, 250L, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4L, 4L)),
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64L, 2000L, 1015L, null, 250L, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8L, 8L)),
-          Row(0, 1, 0, "DICTIONARY_PAGE", 1083L, 13L, 4L, 6L, null, 1L, "PLAIN_DICTIONARY", null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1102L, 46L, 3L, 5L, null, 250L, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4L, 4L))
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1011, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8)),
+          Row(0, 1, 0, "DICTIONARY_PAGE", 1079L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null),
+          Row(0, 1, 1, "DATA_PAGE", 1098L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4)),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1014, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8)),
+          Row(0, 1, 0, "DICTIONARY_PAGE", 1082L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null),
+          Row(0, 1, 1, "DATA_PAGE", 1101L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4)),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1017, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8)),
+          Row(0, 1, 0, "DICTIONARY_PAGE", 1085L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null),
+          Row(0, 1, 1, "DATA_PAGE", 1104L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4)),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1015, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8)),
+          Row(0, 1, 0, "DICTIONARY_PAGE", 1083L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null),
+          Row(0, 1, 1, "DATA_PAGE", 1102L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4))
         )
       )
       // scalastyle:on
 
-      df.select("path").as[String].collect.foreach { path =>
+      df.select("filepath").as[String].collect.foreach { path =>
         assert(path.length > 0)
       }
     }
@@ -245,8 +245,8 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
     withTempDir { dir =>
       writeDF.write.partitionBy("col1").parquet(dir + "/range")
       val df = readDF.option("level", "file").load(dir + "/range")
-      val proj1 = df.select("mtime", "name", "size", "path").collect.toSeq
-      val proj2 = df.cache.select("mtime", "name", "size", "path")
+      val proj1 = df.select("mtime", "filename", "size", "filepath").collect.toSeq
+      val proj2 = df.cache.select("mtime", "filename", "size", "filepath")
       checkAnswer(proj2, proj1)
     }
   }
@@ -257,7 +257,7 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
       val df = readDF.option("level", "file").load(dir + "/range")
       assert(df.filter("size < 0").count === 0)
       assert(df.filter("size > 0").count === 4)
-      assert(df.filter("path is null").count === 0)
+      assert(df.filter("filepath is null").count === 0)
       assert(df.filter("created_by like 'parquet-mr%'").count === 4)
     }
   }

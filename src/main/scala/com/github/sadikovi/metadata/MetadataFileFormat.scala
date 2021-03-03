@@ -219,23 +219,6 @@ class ParquetMetadataFileFormat(
           val path = new Path(file.path)
           val fs = path.getFileSystem(conf)
 
-          val columnInfo = metadata.metadata.getRow_groups.asScala.zipWithIndex.flatMap { case (rg, rgid) =>
-            rg.getColumns.asScala.zipWithIndex.map { case (cc, ccid) =>
-              val cc_meta = if (cc.isSetMeta_data) Some(cc.getMeta_data()) else None
-              // Don't rely on col offset, it can be set to data page offset when dict exists
-              val cc_offset = cc_meta.map { t =>
-                if (t.isSetDictionary_page_offset) {
-                  t.getDictionary_page_offset
-                } else {
-                  t.getData_page_offset
-                }
-              }.getOrElse(0L)
-              // Compressed size is smaller or is equal to uncompressed size
-              val cc_size = cc_meta.map(_.getTotal_compressed_size).getOrElse(0L)
-              (rgid, ccid, cc_offset, cc_size)
-            }
-          }
-
           val iter = new Iterator[Row] {
             val cols = metadata.rowGroups.flatMap(_.columns)
             var colIndex = 0
@@ -257,6 +240,15 @@ class ParquetMetadataFileFormat(
               val pageHeaderSize = (in.getPos() - (offset + colSize)).toInt // must fit within int
               val page = new PageMetadata(pageHeader, pageId, fileOffset, pageHeaderSize)
 
+              val statistics = page.statistics.map { stats =>
+                MetadataFileFormat.toRow(Array(
+                  stats.nullCount,
+                  stats.distinctCount,
+                  stats.minValueLength,
+                  stats.maxValueLength
+                ))
+              }
+
               val values = Array(
                 cols(colIndex).rowGroupId,
                 cols(colIndex).id,
@@ -271,7 +263,7 @@ class ParquetMetadataFileFormat(
                 page.encoding,
                 page.definitionEncoding,
                 page.repetitionEncoding,
-                page.statistics,
+                statistics,
                 file.path
               )
 
