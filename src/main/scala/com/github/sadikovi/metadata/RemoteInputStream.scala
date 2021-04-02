@@ -1,6 +1,6 @@
 package com.github.sadikovi.metadata
 
-import java.io.{IOException, InputStream}
+import java.io.{EOFException, IOException, InputStream}
 import org.apache.hadoop.fs.Seekable
 
 /**
@@ -46,6 +46,20 @@ class RemoteInputStream(
     val bytesRead = copyFromBuf(arr, off, len)
     pos += bytesRead
     bytesRead
+  }
+
+  /** Naive implementation of readFully method */
+  def readFully(arr: Array[Byte], off: Int, len: Int): Unit = {
+    var bytesRead = len
+    var currOffset = off
+    while (bytesRead > 0) {
+      val bytes = read(arr, currOffset, bytesRead)
+      if (bytes < 0) {
+        throw new EOFException(s"Failed to read bytes at off $off and len $len: $bytes")
+      }
+      bytesRead -= bytes
+      currOffset += bytes
+    }
   }
 
   override def skip(bytes: Long): Long = {

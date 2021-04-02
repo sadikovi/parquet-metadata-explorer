@@ -136,7 +136,8 @@ class ParquetMetadataFileFormat(
     fileIndex: FileIndex,
     level: MetadataLevel,
     maxPartitions: Int,
-    bufferSize: Int)
+    bufferSize: Int,
+    pageContentEnabled: Boolean)
   extends MetadataFileFormat(spark, fileIndex, level, maxPartitions) {
 
   require(
@@ -249,6 +250,14 @@ class ParquetMetadataFileFormat(
                 ))
               }
 
+              val pageContent: Option[Array[Byte]] = if (pageContentEnabled) {
+                val tmp = new Array[Byte](page.compressedPageSize)
+                in.readFully(tmp, 0, tmp.length)
+                Some(tmp)
+              } else {
+                None
+              }
+
               val values = Array(
                 cols(colIndex).rowGroupId,
                 cols(colIndex).id,
@@ -264,6 +273,7 @@ class ParquetMetadataFileFormat(
                 page.definitionEncoding,
                 page.repetitionEncoding,
                 statistics,
+                pageContent,
                 file.path
               )
 

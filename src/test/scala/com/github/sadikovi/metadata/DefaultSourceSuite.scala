@@ -219,18 +219,46 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
       checkAnswer(
         df.drop("filepath"),
         Seq(
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1011, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8)),
-          Row(0, 1, 0, "DICTIONARY_PAGE", 1079L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1098L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4)),
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1014, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8)),
-          Row(0, 1, 0, "DICTIONARY_PAGE", 1082L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1101L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4)),
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1017, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8)),
-          Row(0, 1, 0, "DICTIONARY_PAGE", 1085L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1104L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4)),
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1015, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8)),
-          Row(0, 1, 0, "DICTIONARY_PAGE", 1083L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1102L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4))
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1011, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8), null),
+          Row(0, 1, 0, "DICTIONARY_PAGE", 1079L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null, null),
+          Row(0, 1, 1, "DATA_PAGE", 1098L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), null),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1014, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8), null),
+          Row(0, 1, 0, "DICTIONARY_PAGE", 1082L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null, null),
+          Row(0, 1, 1, "DATA_PAGE", 1101L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), null),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1017, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8), null),
+          Row(0, 1, 0, "DICTIONARY_PAGE", 1085L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null, null),
+          Row(0, 1, 1, "DATA_PAGE", 1104L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), null),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1015, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8), null),
+          Row(0, 1, 0, "DICTIONARY_PAGE", 1083L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null, null),
+          Row(0, 1, 1, "DATA_PAGE", 1102L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), null)
+        )
+      )
+      // scalastyle:on
+
+      df.select("filepath").as[String].collect.foreach { path =>
+        assert(path.length > 0)
+      }
+    }
+  }
+
+  test("test page level with page content") {
+    val implicits = spark.implicits
+    import implicits._
+
+    withTempDir { dir =>
+      Seq((1, "a", true), (2, "b", false)).toDF.coalesce(1).write
+        .option("compression", "none").parquet(dir + "/range")
+      val df = readDF.option("level", "page").option("pagecontent", "true").load(dir + "/range")
+
+      assert(df.schema === ParquetPageLevel.schema)
+
+      // scalastyle:off
+      checkAnswer(
+        df.drop("filepath"),
+        Seq(
+          Row(0, 0, 0, "DATA_PAGE", 4L, 45, 8, 8, null, 2, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), Array[Byte](1, 0, 0, 0, 2, 0, 0, 0)),
+          Row(0, 1, 0, "DATA_PAGE", 57L, 27, 16, 16, null, 2, "PLAIN", "RLE", "BIT_PACKED", Row(0L, null, 1, 1), Array[Byte](2, 0, 0, 0, 3, 3, 1, 0, 0, 0, 97, 1, 0, 0, 0, 98)),
+          Row(0, 2, 0, "DATA_PAGE", 100L, 33, 1, 1, null, 2, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 1, 1), Array[Byte](1))
         )
       )
       // scalastyle:on
