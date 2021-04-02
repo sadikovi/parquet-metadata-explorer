@@ -1,6 +1,6 @@
 package com.github.sadikovi.metadata
 
-import java.io.{ByteArrayInputStream, IOException, InputStream}
+import java.io.{ByteArrayInputStream, EOFException, IOException, InputStream}
 
 import org.apache.hadoop.fs.{Path, Seekable}
 
@@ -128,6 +128,30 @@ class RemoteInputStreamSuite extends UnitTestSuite {
         }
       }
     }
+  }
+
+  test("readFully") {
+    val in = remote(Array[Byte](1, 2, 3, 4, 5, 6, 7), 2)
+    val res = new Array[Byte](3)
+
+    in.readFully(res, 0, res.length)
+    assert(res === Seq(1, 2, 3))
+
+    in.readFully(res, 0, res.length)
+    assert(res === Seq(4, 5, 6))
+
+    in.readFully(res, 0, 1)
+    assert(res === Seq(7, 5, 6))
+  }
+
+  test("readFully with EOF") {
+    val in = remote(Array[Byte](1, 2, 3, 4, 5, 6, 7), 2)
+    val res = new Array[Byte](8)
+
+    val err = intercept[EOFException] {
+      in.readFully(res, 0, res.length)
+    }
+    assert(err.getMessage.contains("Failed to read bytes at off 0 and len 8: -1"))
   }
 
   test("seek within buffer") {
