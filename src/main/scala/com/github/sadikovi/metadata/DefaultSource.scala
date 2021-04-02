@@ -45,6 +45,13 @@ class DefaultSource
     }
     log.info(s"Buffer size: $bufferSize")
 
+    // Check if page content is enabled
+    val pageContentEnabled = parameters.get(PAGE_CONTENT_OPT).map(_.toLowerCase) match {
+      case Some(v) => v.toBoolean
+      case None => PAGE_CONTENT_DEFAULT
+    }
+    log.info(s"Page content enabled: $pageContentEnabled")
+
     // // Select file index based on the underlying data source
     val fileIndex = inferFileIndex(spark, rootPath, parameters)
 
@@ -82,10 +89,10 @@ class DefaultSource
 
     // Verify the combination of source and level
     val metadataLevel = inferMetadataLevel(source, level)
-    log.info(s"Metadata level $metadataLevel")
+    log.info(s"Metadata level: $metadataLevel")
 
     // Select file format
-    inferFileFormat(spark, fileIndex, metadataLevel, maxPartitions, bufferSize)
+    inferFileFormat(spark, fileIndex, metadataLevel, maxPartitions, bufferSize, pageContentEnabled)
   }
 }
 
@@ -115,6 +122,10 @@ object DefaultSource {
   val LEVEL_COLUMN = "column"
   val LEVEL_PAGE = "page"
   val ALL_LEVELS = Seq(LEVEL_FILE, LEVEL_ROW_GROUP, LEVEL_COLUMN, LEVEL_PAGE)
+
+  // Enables page content to be returned when page level is selected
+  val PAGE_CONTENT_OPT = "pagecontent"
+  val PAGE_CONTENT_DEFAULT = false
 
   /** Infers metadata level */
   def inferMetadataLevel(source: String, level: String): MetadataLevel = {
@@ -160,12 +171,14 @@ object DefaultSource {
       fileIndex: FileIndex,
       level: MetadataLevel,
       maxPartitions: Int,
-      bufferSize: Int): BaseRelation = {
+      bufferSize: Int,
+      pageContentEnabled: Boolean): BaseRelation = {
     level match {
       case FileLevel =>
         new FileMetadataFormat(spark, fileIndex, level, maxPartitions)
       case ParquetFileLevel | ParquetRowGroupLevel | ParquetColumnLevel | ParquetPageLevel =>
-        new ParquetMetadataFileFormat(spark, fileIndex, level, maxPartitions, bufferSize)
+        new ParquetMetadataFileFormat(
+          spark, fileIndex, level, maxPartitions, bufferSize, pageContentEnabled)
       case other =>
         throw new IllegalArgumentException(s"No file format for level $other")
     }

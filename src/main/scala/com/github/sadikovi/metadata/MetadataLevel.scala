@@ -87,6 +87,7 @@ object ParquetPageLevel extends MetadataLevel {
       StructField("min_value_length", IntegerType) ::
       StructField("max_value_length", IntegerType) ::
       Nil)) ::
+    StructField("page_content", ArrayType(ByteType)) ::
     StructField("filepath", StringType) ::
     Nil)
 }
