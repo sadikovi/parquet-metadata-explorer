@@ -25,6 +25,7 @@ object FileLevel extends MetadataLevel {
 object ParquetFileLevel extends MetadataLevel {
   override def schema: StructType =
     FileLevel.schema
+      .add(StructField("metadata_size", LongType))
       .add(StructField("schema", StringType))
       .add(StructField("num_rows", LongType))
       .add(StructField("created_by", StringType))

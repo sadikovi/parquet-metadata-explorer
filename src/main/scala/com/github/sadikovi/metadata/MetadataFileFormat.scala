@@ -155,8 +155,9 @@ class ParquetMetadataFileFormat(
 
     rdd.flatMap { file =>
       val conf = broadcastedHadoopConf.value.value
-      val metadata = new FileMetadata(
-        ParquetUtils.readParquetMetadata(new Path(file.path), conf, Some(file.size)))
+      val (parquetMetadata, metadataSize) =
+        ParquetUtils.getParquetMetadataAndSize(new Path(file.path), conf, Some(file.size))
+      val metadata = new FileMetadata(parquetMetadata)
 
       level match {
         case ParquetFileLevel =>
@@ -168,6 +169,7 @@ class ParquetMetadataFileFormat(
             file.size,
             file.mtime,
             partMap,
+            metadataSize,
             metadata.schema.toString,
             metadata.numRows,
             metadata.createdBy,

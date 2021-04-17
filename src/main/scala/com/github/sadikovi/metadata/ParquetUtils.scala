@@ -35,11 +35,13 @@ object ParquetUtils {
   /**
    * Reads Thrift FileMetaData from parquet-format.
    * If size is not provided, fetches file status.
+   *
+   * Returns FileMetaData object and size of the serialized object on disk.
    */
-  def readParquetMetadata(
+  def getParquetMetadataAndSize(
       path: Path,
       conf: Configuration,
-      size: Option[Long] = None): FileMetaData = {
+      size: Option[Long] = None): (FileMetaData, Long) = {
     val fs = path.getFileSystem(conf)
     val fileLen = size match {
       case Some(len) => len
@@ -67,10 +69,21 @@ object ParquetUtils {
           s"EOF when reading Parquet metadata for $path, file $fileLen, metadata $metadataLen")
       }
       in.seek(fileLen - metadataLen - 8)
-      Util.readFileMetaData(in)
+      (Util.readFileMetaData(in), metadataLen)
     } finally {
       in.close()
     }
+  }
+
+  /**
+   * Reads Thrift FileMetaData from parquet-format.
+   * If size is not provided, fetches file status.
+   */
+  def readParquetMetadata(
+      path: Path,
+      conf: Configuration,
+      size: Option[Long] = None): FileMetaData = {
+    getParquetMetadataAndSize(path, conf, size)._1
   }
 }
 
