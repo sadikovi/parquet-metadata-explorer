@@ -56,6 +56,14 @@ object ParquetColumnLevel extends MetadataLevel {
     StructField("encodings", ArrayType(StringType)) ::
     StructField("compression", StringType) ::
     StructField("num_values", LongType) ::
+    StructField("statistics", StructType(
+      StructField("null_count", LongType) ::
+      StructField("distinct_count", LongType) ::
+      StructField("min", BinaryType) ::
+      StructField("max", BinaryType) ::
+      StructField("min_value", BinaryType) ::
+      StructField("max_value", BinaryType) ::
+      Nil)) ::
     StructField("data_page_offset", LongType) ::
     StructField("dictionary_page_offset", LongType) ::
     StructField("index_page_offset", LongType) ::
@@ -85,8 +93,10 @@ object ParquetPageLevel extends MetadataLevel {
     StructField("statistics", StructType(
       StructField("null_count", LongType) ::
       StructField("distinct_count", LongType) ::
-      StructField("min_value_length", IntegerType) ::
-      StructField("max_value_length", IntegerType) ::
+      StructField("min", BinaryType) ::
+      StructField("max", BinaryType) ::
+      StructField("min_value", BinaryType) ::
+      StructField("max_value", BinaryType) ::
       Nil)) ::
     StructField("page_content", ArrayType(ByteType)) ::
     StructField("filepath", StringType) ::

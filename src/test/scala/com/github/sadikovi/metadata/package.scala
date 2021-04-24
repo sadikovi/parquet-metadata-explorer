@@ -150,14 +150,15 @@ trait TestBase {
     def checkValue(v1: Any, v2: Any): Unit = {
       (v1, v2) match {
         case (a1: Seq[_], a2: Seq[_]) =>
-          assert(a1.length == a2.length, s"Array length mismatch ${a1.length} != ${a2.length}")
+          assert(a1.length == a2.length,
+            s"Array length mismatch ${a1} (${a1.length}) != ${a2} (${a2.length})")
           val a1sorted = a1.sortBy(_.toString)
           val a2sorted = a2.sortBy(_.toString)
           for (i <- 0 until a1.length) {
             checkValue(a1sorted(i), a2sorted(i))
           }
         case (m1: Map[_, _], m2: Map[_, _]) =>
-          assert(m1.size == m2.size, s"Map size mismatch ${m1.size} != ${m2.size}")
+          assert(m1.size == m2.size, s"Map size mismatch ${m1} (${m1.size}) != ${m2} (${m2.size})")
           checkValue(m1.keys.toSeq, m2.keys.toSeq)
           checkValue(m1.values.toSeq, m2.values.toSeq)
         case (r1: Row, r2: Row) =>

@@ -192,6 +192,12 @@ class ColumnMetadata(val column: ColumnChunk, val id: Int, val rowGroupId: Int) 
   /** Returns the number of values in this column */
   val numValues: Long = metadata.map(_.getNum_values).getOrElse(0) // required Thrift field
 
+  /** Optional statistics for column chunk */
+  val statistics: Option[ConvertedStatistics] = metadata.flatMap { meta =>
+    val rawStats = if (meta.isSetStatistics) Some(meta.getStatistics) else None
+    rawStats.map(new ConvertedStatistics(_))
+  }
+
   /** Returns total compressed size in bytes */
   val totalCompressedSize: Long =
     metadata.map(_.getTotal_compressed_size).getOrElse(0) // required Thrift field
@@ -287,18 +293,18 @@ class PageMetadata(
     dataV2PageHeader.map(_ => Encoding.RLE.toString)} // always encoded as RLE
 
   /** Page statistics */
-  val statistics: Option[PageStatistics] = {
+  val statistics: Option[ConvertedStatistics] = {
     val rawStats = dataPageHeader.flatMap { header =>
       if (header.isSetStatistics) Some(header.getStatistics) else None
     }.orElse {
       dataV2PageHeader.flatMap { header =>
         if (header.isSetStatistics) Some(header.getStatistics) else None }
     }
-    rawStats.map(new PageStatistics(_))
+    rawStats.map(new ConvertedStatistics(_))
   }
 }
 
-class PageStatistics(stats: Statistics) {
+class ConvertedStatistics(stats: Statistics) {
   /** Number of nulls in the page */
   val nullCount: Option[Long] =
     if (stats.isSetNull_count) Some(stats.getNull_count) else None
@@ -307,23 +313,19 @@ class PageStatistics(stats: Statistics) {
   val distinctCount: Option[Long] =
     if (stats.isSetDistinct_count) Some(stats.getDistinct_count) else None
 
-  /**
-   * Length of the min value.
-   * We report the length for privacy reasons.
-   */
-  val minValueLength: Option[Int] = {
-    val min_value = if (stats.isSetMin_value) Some(stats.getMin_value) else None
-    val min = if (stats.isSetMin) Some(stats.getMin) else None
-    min_value.orElse(min).map(_.length)
-  }
+  /** Legacy min field */
+  val min: Option[Array[Byte]] =
+    if (stats.isSetMin) Some(stats.getMin) else None
 
-  /**
-   * Length of the max value.
-   * We report the length for privacy reasons.
-   */
-  val maxValueLength: Option[Int] = {
-    val maxValue = if (stats.isSetMax_value) Some(stats.getMax_value) else None
-    val max = if (stats.isSetMax) Some(stats.getMax) else None
-    maxValue.orElse(max).map(_.length)
-  }
+  /** Legacy max field */
+  val max: Option[Array[Byte]] =
+    if (stats.isSetMax) Some(stats.getMax) else None
+
+  /** Min value field */
+  val minValue: Option[Array[Byte]] =
+    if (stats.isSetMin_value) Some(stats.getMin_value) else None
+
+  /** Max value field */
+  val maxValue: Option[Array[Byte]] =
+    if (stats.isSetMax_value) Some(stats.getMax_value) else None
 }

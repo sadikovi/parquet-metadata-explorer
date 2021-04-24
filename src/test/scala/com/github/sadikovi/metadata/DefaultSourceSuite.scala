@@ -187,14 +187,30 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
       checkAnswer(
         df.drop("filepath"),
         Seq(
-          Row(0, 0, 4L, 1075L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L, 4L, null, null, null, null, null, null),
-          Row(0, 0, 4L, 1078L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L, 4L, null, null, null, null, null, null),
-          Row(0, 0, 4L, 1081L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L, 4L, null, null, null, null, null, null),
-          Row(0, 0, 4L, 1079L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L, 4L, null, null, null, null, null, null),
-          Row(0, 1, 1079L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L, 1079L, null, null, null, null, null, null),
-          Row(0, 1, 1082L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L, 1082L, null, null, null, null, null, null),
-          Row(0, 1, 1083L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L, 1083L, null, null, null, null, null, null),
-          Row(0, 1, 1085L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L, 1085L, null, null, null, null, null, null),
+          Row(0, 0, 4L, 1075L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L,
+            Row(0L, null, Array[Byte](0, 0, 0, 0, 0, 0, 0, 0), Array[Byte](-7, 0, 0, 0, 0, 0, 0, 0), Array[Byte](0, 0, 0, 0, 0, 0, 0, 0), Array[Byte](-7, 0, 0, 0, 0, 0, 0, 0)),
+            4L, null, null, null, null, null, null),
+          Row(0, 0, 4L, 1078L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L,
+            Row(0L, null, Array[Byte](-6, 0, 0, 0, 0, 0, 0, 0), Array[Byte](-13, 1, 0, 0, 0, 0, 0, 0), Array[Byte](-6, 0, 0, 0, 0, 0, 0, 0), Array[Byte](-13, 1, 0, 0, 0, 0, 0, 0)),
+            4L, null, null, null, null, null, null),
+          Row(0, 0, 4L, 1081L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L,
+            Row(0L, null, Array[Byte](-18, 2, 0, 0, 0, 0, 0, 0), Array[Byte](-25, 3, 0, 0, 0, 0, 0, 0), Array[Byte](-18, 2, 0, 0, 0, 0, 0, 0), Array[Byte](-25, 3, 0, 0, 0, 0, 0, 0)),
+            4L, null, null, null, null, null, null),
+          Row(0, 0, 4L, 1079L, 2064L, "id", "INT64", Seq("BIT_PACKED", "PLAIN"), "SNAPPY", 250L,
+            Row(0L, null, Array[Byte](-12, 1, 0, 0, 0, 0, 0, 0), Array[Byte](-19, 2, 0, 0, 0, 0, 0, 0), Array[Byte](-12, 1, 0, 0, 0, 0, 0, 0), Array[Byte](-19, 2, 0, 0, 0, 0, 0, 0)),
+            4L, null, null, null, null, null, null),
+          Row(0, 1, 1079L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L,
+            Row(0L, null, Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0)),
+            1079L, null, null, null, null, null, null),
+          Row(0, 1, 1082L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L,
+            Row(0L, null, Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0)),
+            1082L, null, null, null, null, null, null),
+          Row(0, 1, 1083L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L,
+            Row(0L, null, Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0)),
+            1083L, null, null, null, null, null, null),
+          Row(0, 1, 1085L, 70L, 66L, "col2", "INT32", Seq("BIT_PACKED", "PLAIN_DICTIONARY"), "SNAPPY", 250L,
+            Row(0L, null, Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0)),
+            1085L, null, null, null, null, null, null),
         )
       )
       // scalastyle:on
@@ -219,18 +235,26 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
       checkAnswer(
         df.drop("filepath"),
         Seq(
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1011, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8), null),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1011, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](0, 0, 0, 0, 0, 0, 0, 0), Array[Byte](-7, 0, 0, 0, 0, 0, 0, 0), Array[Byte](0, 0, 0, 0, 0, 0, 0, 0), Array[Byte](-7, 0, 0, 0, 0, 0, 0, 0)), null),
           Row(0, 1, 0, "DICTIONARY_PAGE", 1079L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1098L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), null),
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1014, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8), null),
+          Row(0, 1, 1, "DATA_PAGE", 1098L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0)), null),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1014, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](-6, 0, 0, 0, 0, 0, 0, 0), Array[Byte](-13, 1, 0, 0, 0, 0, 0, 0), Array[Byte](-6, 0, 0, 0, 0, 0, 0, 0), Array[Byte](-13, 1, 0, 0, 0, 0, 0, 0)), null),
           Row(0, 1, 0, "DICTIONARY_PAGE", 1082L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1101L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), null),
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1017, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8), null),
+          Row(0, 1, 1, "DATA_PAGE", 1101L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0)), null),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1017, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](-18, 2, 0, 0, 0, 0, 0, 0), Array[Byte](-25, 3, 0, 0, 0, 0, 0, 0), Array[Byte](-18, 2, 0, 0, 0, 0, 0, 0), Array[Byte](-25, 3, 0, 0, 0, 0, 0, 0)), null),
           Row(0, 1, 0, "DICTIONARY_PAGE", 1085L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1104L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), null),
-          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1015, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 8, 8), null),
+          Row(0, 1, 1, "DATA_PAGE", 1104L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0)), null),
+          Row(0, 0, 0, "DATA_PAGE", 4L, 64, 1015, 2000, null, 250, "PLAIN", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](-12, 1, 0, 0, 0, 0, 0, 0), Array[Byte](-19, 2, 0, 0, 0, 0, 0, 0), Array[Byte](-12, 1, 0, 0, 0, 0, 0, 0), Array[Byte](-19, 2, 0, 0, 0, 0, 0, 0)), null),
           Row(0, 1, 0, "DICTIONARY_PAGE", 1083L, 13, 6, 4, null, 1, "PLAIN_DICTIONARY", null, null, null, null),
-          Row(0, 1, 1, "DATA_PAGE", 1102L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), null)
+          Row(0, 1, 1, "DATA_PAGE", 1102L, 46, 5, 3, null, 250, "PLAIN_DICTIONARY", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](2, 0, 0, 0)), null)
         )
       )
       // scalastyle:on
@@ -256,9 +280,15 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
       checkAnswer(
         df.drop("filepath"),
         Seq(
-          Row(0, 0, 0, "DATA_PAGE", 4L, 45, 8, 8, null, 2, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 4, 4), Array[Byte](1, 0, 0, 0, 2, 0, 0, 0)),
-          Row(0, 1, 0, "DATA_PAGE", 57L, 27, 16, 16, null, 2, "PLAIN", "RLE", "BIT_PACKED", Row(0L, null, 1, 1), Array[Byte](2, 0, 0, 0, 3, 3, 1, 0, 0, 0, 97, 1, 0, 0, 0, 98)),
-          Row(0, 2, 0, "DATA_PAGE", 100L, 33, 1, 1, null, 2, "PLAIN", "BIT_PACKED", "BIT_PACKED", Row(0L, null, 1, 1), Array[Byte](1))
+          Row(0, 0, 0, "DATA_PAGE", 4L, 45, 8, 8, null, 2, "PLAIN", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](1, 0, 0, 0), Array[Byte](2, 0, 0, 0), Array[Byte](1, 0, 0, 0), Array[Byte](2, 0, 0, 0)),
+            Array[Byte](1, 0, 0, 0, 2, 0, 0, 0)),
+          Row(0, 1, 0, "DATA_PAGE", 57L, 27, 16, 16, null, 2, "PLAIN", "RLE", "BIT_PACKED",
+            Row(0L, null, null, null, Array[Byte](97), Array[Byte](98)),
+            Array[Byte](2, 0, 0, 0, 3, 3, 1, 0, 0, 0, 97, 1, 0, 0, 0, 98)),
+          Row(0, 2, 0, "DATA_PAGE", 100L, 33, 1, 1, null, 2, "PLAIN", "BIT_PACKED", "BIT_PACKED",
+            Row(0L, null, Array[Byte](0), Array[Byte](1), Array[Byte](0), Array[Byte](1)),
+            Array[Byte](1))
         )
       )
       // scalastyle:on

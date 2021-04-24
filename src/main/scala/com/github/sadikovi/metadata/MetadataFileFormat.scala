@@ -205,6 +205,16 @@ class ParquetMetadataFileFormat(
                 column.encodings,
                 column.compressionCodec,
                 column.numValues,
+                column.statistics.map { stats =>
+                  MetadataFileFormat.toRow(Array(
+                    stats.nullCount,
+                    stats.distinctCount,
+                    stats.min,
+                    stats.max,
+                    stats.minValue,
+                    stats.maxValue
+                  ))
+                },
                 column.dataPageOffset,
                 column.dictionaryPageOffset,
                 column.indexPageOffset,
@@ -247,8 +257,10 @@ class ParquetMetadataFileFormat(
                 MetadataFileFormat.toRow(Array(
                   stats.nullCount,
                   stats.distinctCount,
-                  stats.minValueLength,
-                  stats.maxValueLength
+                  stats.min,
+                  stats.max,
+                  stats.minValue,
+                  stats.maxValue
                 ))
               }
 
