@@ -172,6 +172,7 @@ class ParquetMetadataFileFormat(
             metadataSize,
             metadata.schema.toString,
             metadata.numRows,
+            metadata.rowGroups.length,
             metadata.createdBy,
             metadata.keyValueMetadata
           )

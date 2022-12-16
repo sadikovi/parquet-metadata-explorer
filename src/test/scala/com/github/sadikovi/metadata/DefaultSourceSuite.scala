@@ -114,12 +114,12 @@ class DefaultSourceSuite extends UnitTestSuite with SparkLocal {
       assert(df.count === 4)
 
       checkAnswer(
-        df.select("size", "partition", "num_rows", "metadata_size"),
+        df.select("size", "partition", "num_rows", "num_row_groups", "metadata_size"),
         Seq(
-          Row(1464L, Map("col1" -> "1", "col2" -> "2"), 250L, 377L),
-          Row(1467L, Map("col1" -> "1", "col2" -> "2"), 250L, 377L),
-          Row(1470L, Map("col1" -> "1", "col2" -> "2"), 250L, 377L),
-          Row(1468L, Map("col1" -> "1", "col2" -> "2"), 250L, 377L)
+          Row(1464L, Map("col1" -> "1", "col2" -> "2"), 250L, 1, 377L),
+          Row(1467L, Map("col1" -> "1", "col2" -> "2"), 250L, 1, 377L),
+          Row(1470L, Map("col1" -> "1", "col2" -> "2"), 250L, 1, 377L),
+          Row(1468L, Map("col1" -> "1", "col2" -> "2"), 250L, 1, 377L)
         )
       )
 

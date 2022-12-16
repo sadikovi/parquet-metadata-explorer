@@ -28,6 +28,7 @@ object ParquetFileLevel extends MetadataLevel {
       .add(StructField("metadata_size", LongType))
       .add(StructField("schema", StringType))
       .add(StructField("num_rows", LongType))
+      .add(StructField("num_row_groups", IntegerType))
       .add(StructField("created_by", StringType))
       .add(StructField("key_value_metadata", MapType(StringType, StringType)))
 }
